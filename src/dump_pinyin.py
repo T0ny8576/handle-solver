@@ -1,7 +1,8 @@
 import json
-from pypinyin import pinyin, Style
-from collections import defaultdict
 import pickle
+from collections import defaultdict
+
+from utils import parse_idiom_pinyin
 
 PINYIN_INITIALS = ["y", "d", "b", "sh", "x", "n", "zh", "m", "l", "q", "h", "s", "g", "w", "ch", "j", "f",
                    "t", "r", "c", "z", "k", "p"]
@@ -27,10 +28,7 @@ if __name__ == "__main__":
     for example in idioms:
         example = example.strip()
         if len(example) == 4:
-            this_init_list = [item[0] for item in pinyin(example, style=Style.INITIALS, strict=False)]
-            this_finals_list = [item[0] for item in pinyin(example, style=Style.FINALS, strict=False)]
-            this_tone_list = [item[0][-1] if len(item[0]) > 0 and item[0][-1] in "1234" else ""
-                              for item in pinyin(example, style=Style.TONE3)]
+            this_init_list, this_finals_list, this_tone_list = parse_idiom_pinyin(example)
             example_list = [list(example), this_init_list, this_finals_list, this_tone_list]
 
             idioms_pinyin_dict[example] = example_list

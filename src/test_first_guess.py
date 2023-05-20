@@ -18,15 +18,15 @@ def test_first_guess(guess: str,
     for trial_count, occurrence in trial_counter_sorted:
         print("[{}]  {:>5}  {:.2%}".format(trial_count, occurrence, occurrence / sum(trial_counter.values())))
     """
-    Result with first guess: 研经铸史
-    Average time per guess: 1.54ms
-    Average trial count: 2.581653
-    [1]      1  0.00%
-    [2]  13094  44.00%
-    [3]  16032  53.87%
-    [4]    621  2.09%
-    [5]     11  0.04%
-    [6]      1  0.00%
+    Result from first guess: 研经铸史
+        Average time per guess: 1.67ms
+        Average trial count: 2.595094
+        [1]      1  0.00%
+        [2]  12753  42.85%
+        [3]  16312  54.81%
+        [4]    684  2.30%
+        [5]      9  0.03%
+        [6]      1  0.00%
     """
 
 

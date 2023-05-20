@@ -68,9 +68,14 @@ def match(guess_char: list[str],
     return match_pattern
 
 
-def match_all(guess: str, vocab: dict[str: list[list[str]]]) -> dict[str: dict[str: list[list[str]]]]:
+def match_all(guess: str,
+              vocab: dict[str: list[list[str]]],
+              guess_pinyin_parts: (list[str], list[str], list[str]) = None) -> dict[str: dict[str: list[list[str]]]]:
     assert len(guess) == 4
-    if guess in idiom_dict:
+    if guess_pinyin_parts is not None:
+        guess_init, guess_finals, guess_tone = guess_pinyin_parts
+        assert len(guess_init) == len(guess_finals) == len(guess_tone) == 4
+    elif guess in idiom_dict:
         _, guess_init, guess_finals, guess_tone = idiom_dict[guess]
     else:
         guess_init, guess_finals, guess_tone = parse_idiom_pinyin(guess)
@@ -83,8 +88,10 @@ def match_all(guess: str, vocab: dict[str: list[list[str]]]) -> dict[str: dict[s
     return match_pattern_dict
 
 
-def evaluate_guess(guess: str, vocab: dict[str: list[list[str]]]) -> (dict[str: dict[str: list[list[str]]]], float):
-    grouped_vocab = match_all(guess, vocab)
+def evaluate_guess(guess: str,
+                   vocab: dict[str: list[list[str]]],
+                   guess_pinyin_parts: tuple[list[str]] = None) -> (dict[str: dict[str: list[list[str]]]], float):
+    grouped_vocab = match_all(guess, vocab, guess_pinyin_parts)
     sorted_selected = sorted(grouped_vocab.items(), key=lambda x: len(x[1]), reverse=True)
     guess_entropy = 0.
     for ptn, result in sorted_selected:
@@ -123,17 +130,17 @@ def test_run(guess: str,
         match_result = match(list(guess), guess_init, guess_finals, guess_tone,
                              truth_parts[0], truth_parts[1], truth_parts[2], truth_parts[3])
         next_vocab = grouped_vocab[match_result]
+        if len(next_vocab) < 1:
+            logging.warning("Error: Out of Vocabulary.\nAnswer: {}".format(answer))
+            return epoch
         uncertainty_remaining = math.log2(len(next_vocab))
         logging.info("Result:\n{}".format(
             format_match_result(guess, guess_init, guess_finals, guess_tone, match_result)))
         logging.info("Uncertainty after this guess: {}".format(uncertainty_remaining))
         logging.info("Next ({}) available idioms: {}\n".format(len(next_vocab), list(next_vocab.keys())))
-        epoch += 1
 
         # Find the next guess with maximum entropy
-        if len(next_vocab) < 1:
-            logging.warning("Error: Out of Vocabulary.\nAnswer: {}".format(answer))
-            return epoch
+        epoch += 1
         max_entropy = 0.
         for new_guess in next_vocab:
             grouped, entropy = evaluate_guess(new_guess, next_vocab)
@@ -148,6 +155,6 @@ def test_run(guess: str,
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(message)s', level=logging.INFO)
-    my_guess = "常胜将军"
-    real_answer = "平分秋色"
+    my_guess = "身不由己"
+    real_answer = "花前月下"
     test_run(my_guess, real_answer, idiom_dict)

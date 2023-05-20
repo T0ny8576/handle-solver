@@ -2,13 +2,7 @@ import json
 import pickle
 from collections import defaultdict
 
-from utils import parse_idiom_pinyin
-
-PINYIN_INITIALS = ["y", "d", "b", "sh", "x", "n", "zh", "m", "l", "q", "h", "s", "g", "w", "ch", "j", "f",
-                   "t", "r", "c", "z", "k", "p"]
-PINYIN_FINALS = ["i", "ing", "u", "iao", "in", "iu", "ong", "iong", "en", "e", "ao", "ua", "ou", "iang", "an", "uan",
-                 "ian", "eng", "ei", "ie", "ai", "o", "ang", "un", "a", "ue", "uang", "ia", "uai", "ui", "er", "uo",
-                 "v", "ve"]
+from utils import *
 
 
 if __name__ == "__main__":
@@ -28,37 +22,16 @@ if __name__ == "__main__":
     for example in idioms:
         example = example.strip()
         if len(example) == 4:
-            this_init_list, this_finals_list, this_tone_list = parse_idiom_pinyin(example)
-            example_list = [list(example), this_init_list, this_finals_list, this_tone_list]
-
+            this_pinyin_parts = parse_idiom_pinyin(example)
+            example_list = [list(example), *this_pinyin_parts]
             idioms_pinyin_dict[example] = example_list
 
     for example in corrections:
         example = example.strip()
         if len(example) == 4:
-            correct_pinyin = corrections[example].strip().split()
-            correct_initials = []
-            correct_finals = []
-            correct_tones = []
-            for y in correct_pinyin:
-                this_init, this_finals, this_tone = "", "", ""
-                if len(y) > 0 and y[-1] in "1234":
-                    this_tone = y[-1]
-                    y = y[:-1]
-                for init in PINYIN_INITIALS:
-                    if y.startswith(init):
-                        this_init = init
-                        y = y.removeprefix(init)
-                        break
-                for finals in PINYIN_FINALS:
-                    if y == finals:
-                        this_finals = finals
-                        break
-                correct_initials.append(this_init)
-                correct_finals.append(this_finals)
-                correct_tones.append(this_tone)
-            example_list = [list(example), correct_initials, correct_finals, correct_tones]
-
+            correct_pinyin = corrections[example].strip()
+            correct_pinyin_parts = parse_idiom_pinyin_from_str(correct_pinyin)
+            example_list = [list(example), *correct_pinyin_parts]
             idioms_pinyin_dict[example] = example_list
 
     with open("../data/idioms_pinyin_dict.pkl", "wb") as idioms_dict_file:

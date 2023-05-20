@@ -2,6 +2,7 @@ import pickle
 import math
 from collections import defaultdict
 import time
+import logging
 
 from utils import *
 
@@ -91,24 +92,29 @@ def evaluate_guess(guess: str, vocab: dict[str: list[list[str]]]) -> (dict[str: 
     return grouped_vocab, guess_entropy
 
 
-def test_run(guess: str, answer: str, vocab: dict[str: list[list[str]]]):
+def test_run(guess: str,
+             answer: str,
+             vocab: dict[str: list[list[str]]],
+             grouped_vocab: dict[str: dict[str: list[list[str]]]] = None,
+             guess_entropy: float = None) -> int:
     assert len(guess) == len(answer) == 4
 
     truth_parts = vocab[answer]
     total_uncertainty = math.log2(len(idiom_dict))
-    print("Game Start\nTotal uncertainty: {}\n".format(total_uncertainty))
+    logging.info("Game Start\nTotal uncertainty: {}\n".format(total_uncertainty))
     start_time = time.time()
     epoch = 1
-    grouped_vocab, guess_entropy = evaluate_guess(guess, idiom_dict)
+    if grouped_vocab is None or guess_entropy is None:
+        grouped_vocab, guess_entropy = evaluate_guess(guess, idiom_dict)
 
     while epoch <= 10:
-        print("Epoch {}:\nGuess: {}\nEntropy of this guess: {}".format(epoch, guess, guess_entropy))
+        logging.info("Epoch {}:\nGuess: {}\nEntropy of this guess: {}".format(epoch, guess, guess_entropy))
         if guess == answer:
             end_time = time.time()
-            print("\nYou win!")
-            print("Answer: {}".format(answer))
-            print("Time: {:.2f}s".format(end_time - start_time))
-            return
+            logging.info("\nYou win!")
+            logging.info("Answer: {}".format(answer))
+            logging.info("Time: {:.2f}s".format(end_time - start_time))
+            return epoch
 
         if guess in idiom_dict:
             _, guess_init, guess_finals, guess_tone = idiom_dict[guess]
@@ -118,15 +124,16 @@ def test_run(guess: str, answer: str, vocab: dict[str: list[list[str]]]):
                              truth_parts[0], truth_parts[1], truth_parts[2], truth_parts[3])
         next_vocab = grouped_vocab[match_result]
         uncertainty_remaining = math.log2(len(next_vocab))
-        print("Result:\n{}".format(format_match_result(guess, guess_init, guess_finals, guess_tone, match_result)))
-        print("Uncertainty after this guess: {}".format(uncertainty_remaining))
-        print("Next ({}) available idioms: {}\n".format(len(next_vocab), list(next_vocab.keys())))
+        logging.info("Result:\n{}".format(
+            format_match_result(guess, guess_init, guess_finals, guess_tone, match_result)))
+        logging.info("Uncertainty after this guess: {}".format(uncertainty_remaining))
+        logging.info("Next ({}) available idioms: {}\n".format(len(next_vocab), list(next_vocab.keys())))
         epoch += 1
 
         # Find the next guess with maximum entropy
         if len(next_vocab) < 1:
-            print("Error: Out of Vocabulary")
-            return
+            logging.warning("Error: Out of Vocabulary.\nAnswer: {}".format(answer))
+            return epoch
         max_entropy = 0.
         for new_guess in next_vocab:
             grouped, entropy = evaluate_guess(new_guess, next_vocab)
@@ -135,9 +142,12 @@ def test_run(guess: str, answer: str, vocab: dict[str: list[list[str]]]):
                 guess = new_guess
                 grouped_vocab = grouped
         guess_entropy = max_entropy
+    logging.warning("Failed to find answer within 10 epochs.\nAnswer: {}".format(answer))
+    return epoch
 
 
 if __name__ == "__main__":
+    logging.basicConfig(format='%(message)s', level=logging.INFO)
     my_guess = "常胜将军"
     real_answer = "平分秋色"
     test_run(my_guess, real_answer, idiom_dict)

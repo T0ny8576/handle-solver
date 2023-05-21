@@ -15,11 +15,12 @@ def parse_idiom_pinyin(word: str) -> (list[str], list[str], list[str]):
     assert len(word) == 4
     init_list = [item[0] for item in pinyin(word, style=Style.INITIALS, strict=False)]
     finals_list = [item[0] for item in pinyin(word, style=Style.FINALS, strict=False)]
+    tone_list = [item[0][-1] if len(item[0]) > 0 and item[0][-1] in "1234" else ""
+                 for item in pinyin(word, style=Style.TONE3)]
+    assert len(init_list) == len(finals_list) == len(tone_list) == 4
     finals_list = [finals_list[i].replace("u", "v")
                    if init_list[i] in ["y", "j", "q", "x"] and finals_list[i].startswith("u")
                    else finals_list[i] for i in range(4)]
-    tone_list = [item[0][-1] if len(item[0]) > 0 and item[0][-1] in "1234" else ""
-                 for item in pinyin(word, style=Style.TONE3)]
     return init_list, finals_list, tone_list
 
 
@@ -81,3 +82,16 @@ def format_match_result(guess: str,
     phone_match_formatted = "{:>10}{:>10}{:>10}{:>10}\n".format(*phone_match_str)
     char_match_formatted = "{:>10}{:>10}{:>10}{:>10}".format(*char_match_str)
     return tone_match_formatted + phone_match_formatted + char_match_formatted
+
+
+def index_to_pattern(matched_indices: str,
+                     misplaced_indices: str) -> str:
+    base_pattern = [NON_MATCH_CODE] * 4
+    matched_list = [int(i) for i in "1234" if i in matched_indices]
+    misplaced_list = [int(i) for i in "1234" if i in misplaced_indices]
+    for idx in misplaced_list:
+        base_pattern[idx - 1] = MISMATCH_CODE
+    for idx in matched_list:
+        base_pattern[idx - 1] = MATCH_CODE
+    pattern = "".join(base_pattern)
+    return pattern

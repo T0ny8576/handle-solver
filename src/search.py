@@ -107,12 +107,12 @@ def test_run(guess: str,
     assert len(guess) == len(answer) == 4
 
     truth_parts = vocab[answer]
-    total_uncertainty = math.log2(len(idiom_dict))
+    total_uncertainty = math.log2(len(vocab))
     logging.info("Game Start\nTotal uncertainty: {}\n".format(total_uncertainty))
     start_time = time.time()
     epoch = 1
     if grouped_vocab is None or guess_entropy is None:
-        grouped_vocab, guess_entropy = evaluate_guess(guess, idiom_dict)
+        grouped_vocab, guess_entropy = evaluate_guess(guess, vocab)
 
     while epoch <= 10:
         logging.info("Epoch {}:\nGuess: {}\nEntropy of this guess: {}".format(epoch, guess, guess_entropy))

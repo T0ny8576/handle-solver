@@ -2,15 +2,16 @@ from search import *
 
 
 def test_first_guess(guess: str,
+                     dict_subset: dict[str: list[list[str]]],
                      guess_vocab: dict[str: dict[str: list[list[str]]]] = None,
                      guess_entropy: float = None):
     start_time = time.time()
     trial_counter = defaultdict(int)
-    for answer in idiom_dict:
-        epoch = test_run(guess, answer, idiom_dict, guess_vocab, guess_entropy)
+    for answer in dict_subset:
+        epoch = test_run(guess, answer, dict_subset, guess_vocab, guess_entropy)
         trial_counter[epoch] += 1
     end_time = time.time()
-    average_time = (end_time - start_time) / len(idiom_dict)
+    average_time = (end_time - start_time) / len(dict_subset)
     print("Average time per guess: {:.2f}ms".format(average_time * 1000))
     average_trial = sum(x[0] * x[1] for x in trial_counter.items()) / sum(trial_counter.values())
     print("Average trial count: {:2f}".format(average_trial))
@@ -38,4 +39,4 @@ if __name__ == "__main__":
         max_guess_entropy = float(max_guess_entropy)
     with open("../data/first_guess_vocab.pkl", "rb") as guess_vocab_file:
         best_guess_vocab = pickle.load(guess_vocab_file)
-    test_first_guess(best_guess, best_guess_vocab, max_guess_entropy)
+    test_first_guess(best_guess, idiom_dict, best_guess_vocab, max_guess_entropy)

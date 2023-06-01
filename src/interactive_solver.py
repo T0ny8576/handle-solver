@@ -1,9 +1,9 @@
 from search import *
 
 
-def solve() -> int:
+def solve(dict_subset: dict[str: list[list[str]]] = idiom_dict) -> int:
     epoch = 1
-    next_vocab = idiom_dict
+    next_vocab = dict_subset
     while epoch <= 10:
         print("\nEpoch {}:".format(epoch))
         guess = input("Enter a 4-character Chinese word: ").strip()
@@ -18,8 +18,8 @@ def solve() -> int:
                 guess = input("Invalid input. Try again: ").strip()
                 if guess in ["q", "quit", "exit"]:
                     return -1
-        if guess in idiom_dict:
-            _, guess_init, guess_finals, guess_tone = idiom_dict[guess]
+        if guess in dict_subset:
+            _, guess_init, guess_finals, guess_tone = dict_subset[guess]
         correct_pinyin = input("Press [Enter] if this is the correct pinyin: {}\n"
                                "If not, type the correct pinyin here: "
                                .format(" ".join([guess_init[i] + guess_finals[i] + guess_tone[i]

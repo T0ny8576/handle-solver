@@ -95,3 +95,10 @@ if __name__ == "__main__":
 
     print("Retry count: {}".format(retry_count))
     print("Failed search: {}".format(failed_search))
+
+    count_done = sum([val.isnumeric() for val in result_dict.values()])
+    if count_done == len(result_dict):
+        sorted_idiom_list = sorted(result_dict.items(), key=lambda x: int(x[1]), reverse=True)
+        with open("../data/search_result_count.txt", "w") as sorted_search_file:
+            for idiom, count in sorted_idiom_list:
+                sorted_search_file.write("{},{}\n".format(idiom, count))

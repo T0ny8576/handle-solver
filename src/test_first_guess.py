@@ -24,7 +24,7 @@ def test_first_guess(guess: str,
 if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.WARNING)
     with open("../data/first_guess.txt", "r") as guess_file:
-        best_guess, max_guess_entropy = guess_file.readlines()[0].strip().split(",")
+        best_guess, max_guess_entropy = guess_file.readline().strip().split(",")
         assert len(best_guess) == 4
         max_guess_entropy = float(max_guess_entropy)
     with open("../data/first_guess_vocab.pkl", "rb") as guess_vocab_file:

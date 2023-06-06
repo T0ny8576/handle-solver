@@ -8,10 +8,8 @@ from utils import *
 if __name__ == "__main__":
     with open("../data/polyphones.json", "r") as pinyin_file:
         corrections = json.load(pinyin_file)
-    # with open("../data/answer.txt", "r") as answer_file:
-    #     answer = answer_file.readlines()
     with open("../data/idioms.txt", "r") as idioms_file:
-        idioms = idioms_file.readlines()
+        idioms = idioms_file.read().splitlines()
 
     char_counter = defaultdict(int)
     init_counter = defaultdict(int)
@@ -20,14 +18,12 @@ if __name__ == "__main__":
     idioms_pinyin_dict = {}
 
     for example in idioms:
-        example = example.strip()
         if len(example) == 4:
             this_pinyin_parts = parse_idiom_pinyin(example)
             example_list = [list(example), *this_pinyin_parts]
             idioms_pinyin_dict[example] = example_list
 
     for example in corrections:
-        example = example.strip()
         if len(example) == 4:
             correct_pinyin = corrections[example].strip()
             correct_pinyin_parts = parse_idiom_pinyin_from_str(correct_pinyin)

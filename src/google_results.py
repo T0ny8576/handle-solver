@@ -13,11 +13,10 @@ MAX_RETRY_COUNT = 20
 
 def load_result():
     with open("../data/search_result_count.txt", "r") as search_read_file:
-        lines = search_read_file.readlines()
+        lines = search_read_file.read().splitlines()
 
     loaded_result = {}
     for line in lines:
-        line = line.strip()
         if line != "":
             args = line.split(",")
             assert len(args) == 2
@@ -25,7 +24,8 @@ def load_result():
     return loaded_result
 
 
-def save_result(count_dict, fix_dict):
+def save_result(count_dict: dict[str: str],
+                fix_dict: dict[str: str]):
     with open("../data/search_result_count.txt", "w") as search_write_file:
         for key, val in count_dict.items():
             search_write_file.write("{},{}\n".format(key, val))
@@ -36,7 +36,7 @@ def save_result(count_dict, fix_dict):
     fix_dict.clear()
 
 
-def fetch_result(query):
+def fetch_result(query: str):
     search = GoogleSearch({
         "q": query,
         "api_key": serp_api_key,
@@ -87,7 +87,7 @@ if __name__ == "__main__":
         if error_flag:
             print("Stopped due to exceptions.")
             break
-        task_remaining = sum([val == "" for val in result_dict.values()])
+        task_remaining = sum(val == "" for val in result_dict.values())
         if task_remaining == 0:
             print("Search finished.")
             break
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     print("Retry count: {}".format(retry_count))
     print("Failed search: {}".format(failed_search))
 
-    count_done = sum([val.isnumeric() for val in result_dict.values()])
+    count_done = sum(val.isnumeric() for val in result_dict.values())
     if count_done == len(result_dict):
         sorted_idiom_list = sorted(result_dict.items(), key=lambda x: int(x[1]), reverse=True)
         with open("../data/search_result_count.txt", "w") as sorted_search_file:

@@ -22,8 +22,8 @@ def solve(dict_subset: dict[str: list[list[str]]] = idiom_dict) -> int:
             _, guess_init, guess_finals, guess_tone = dict_subset[guess]
         correct_pinyin = input("Press [Enter] if this is the correct pinyin: {}\n"
                                "If not, type the correct pinyin here: "
-                               .format(" ".join([guess_init[i] + guess_finals[i] + guess_tone[i]
-                                                 for i in range(4)]))).strip()
+                               .format(" ".join(guess_init[i] + guess_finals[i] + guess_tone[i]
+                                                for i in range(4)))).strip()
         if correct_pinyin != "":
             try:
                 guess_parts = parse_idiom_pinyin_from_str(correct_pinyin)

@@ -110,3 +110,7 @@ env/
 
 # DS_Store
 **/.DS_Store
+
+# Search data files
+data/pages/
+data/search_results/
